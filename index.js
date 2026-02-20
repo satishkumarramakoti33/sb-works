@@ -1,30 +1,44 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
+const app = express();
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// middleware
+app.use(cors());
+app.use(express.json());
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+// import routes
+const userRoutes = require("./routes/userRoutes");
 
-// import React from 'react';
-// import ReactDOM from 'react-dom/client';
-// import App from './App';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+// use routes
+app.use("/api/users", userRoutes);
 
-// const root = ReactDOM.createRoot(document.getElementById('root'));
-// root.render(<App />);
+const authRoutes = require("./routes/authRoutes");
+app.use("/api/auth", authRoutes);
 
+const jobRoutes = require("./routes/jobRoutes");
+app.use("/api/jobs", jobRoutes);
+
+
+// test route
+app.get("/", (req, res) => {
+  res.send("SB Works Backend is running 🚀");
+});
+
+// connect database and start server
+const PORT = process.env.PORT || 5000;
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB Connected ✅");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MongoDB Error ❌", err.message);
+  });
